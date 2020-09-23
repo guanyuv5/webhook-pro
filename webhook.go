@@ -8,10 +8,10 @@ import (
 
 	"github.com/golang/glog"
 	"k8s.io/api/admission/v1beta1"
-	"k8s.io/kubernetes/pkg/apis/core/v1"
 	admissionregistrationv1beta1 "k8s.io/api/admissionregistration/v1beta1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	v1 "k8s.io/kubernetes/pkg/apis/core/v1"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
@@ -79,7 +79,6 @@ func (whsvr *WebhookServer) serve(w http.ResponseWriter, r *http.Request) {
 			},
 		}
 	} else {
-		fmt.Println(r.URL.Path)
 		if r.URL.Path == "/validate" {
 			admissionResponse = whsvr.validate(&ar)
 		}
@@ -106,22 +105,19 @@ func (whsvr *WebhookServer) serve(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// validate deployments and services
+// validate delete pods
 func (whsvr *WebhookServer) validate(ar *v1beta1.AdmissionReview) *v1beta1.AdmissionResponse {
 	req := ar.Request
 	var (
 		resourceName string
+		allowed      = true
+		result       *metav1.Status
 	)
 
-	glog.Infof("AdmissionReview for Kind=%v, Namespace=%v Name=%v (%v) UID=%v patchOperation=%v UserInfo=%v",
-		req.Kind, req.Namespace, req.Name, resourceName, req.UID, req.Operation, req.UserInfo)
-
-	allowed := true
-	var result *metav1.Status
 	if req.Namespace == "dmz" {
 		allowed = false
 		result = &metav1.Status{
-			Reason: "protect ns, delete forbbiden...",
+			Reason: "protect ns, delete pod forbbiden...",
 		}
 	}
 	return &v1beta1.AdmissionResponse{

@@ -2,8 +2,7 @@
 
 : ${DOCKER_USER:? required}
 
-dep ensure -v
-CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o webhook-pro
+GO111MODULE=on CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o webhook-pro
 docker build --no-cache -t ${DOCKER_USER}/webhook-pro:v1 .
 rm -rf webhook-pro
 
