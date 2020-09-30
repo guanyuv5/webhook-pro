@@ -109,7 +109,6 @@ func (whsvr *WebhookServer) serve(w http.ResponseWriter, r *http.Request) {
 func (whsvr *WebhookServer) validate(ar *v1beta1.AdmissionReview) *v1beta1.AdmissionResponse {
 	req := ar.Request
 	var (
-		resourceName string
 		allowed      = true
 		result       *metav1.Status
 	)
